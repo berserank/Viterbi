@@ -32,12 +32,12 @@ def diff(my_list):
     return temp
 
 
-coefficients = np.array([[1,1],[1,1]])
+coefficients = np.array([[2,3],[4,3]])
 test_points = np.random.rand(20)
 
 m = gp.Model('dumb')
 objective_function = 0
-n = 7
+n = 10
 control_points = m.addMVar(shape = (n+1,2), lb = -gp.GRB.INFINITY, vtype = GRB.CONTINUOUS, name = 'control_points') # lb is an iterable
 
 for t in test_points:  
@@ -64,18 +64,12 @@ for v in m.getVars():
     final_list.append(v.X)
 
 x = np.linspace(0, 1, 10000)
-x = x[1:]
-
-
-# print(np.array(final_list))
-# print(type(final_list))
 
 final_list_1 = final_list[::2]
 final_list_2 = final_list[1::2]
 
 print(bezier_curve_normie(final_list_1,0.2))
 
-# y = 0.5*(x**3)*(2*(np.cos(2*np.log(x))) - 3* np.sin(2*np.log(x)))
 
 y_hat_1 = []
 y_hat_2 = []
@@ -86,25 +80,13 @@ for g in x:
 
 y_hat_1 = np.asarray(y_hat_1)
 y_hat_2 = np.asarray(y_hat_2)
+y_1 = 1/7 * np.exp(-x)+ 6/7 * np.exp(6*x)  
+y_2 = -1/7 * np.exp(-x)+ 8/7 * np.exp(6*x)  
 
-# for i in range(10000-1):
-#     print(y_hat_1[i], i)
-
-print(y_hat_1)
-print(y_hat_2)
-
-# count = 0
-# for i in y_hat_1:
-#     if i == 1.0:
-# #         count+=1
-# print(count)
-# if np.array_equal(y_hat_1, np.ones(10000, dtype = float)):
-#     print('Hi')
-
-plt.plot(y_hat_1)
-plt.plot(y_hat_2)
-# plt.plot(np.ones(10000))
-# plt.plot(x,y)
-# plt.legend(['Approximation of f1','Approximation of f2'])
-# plt.title('Complicated Homogenous ODE, Test points = 20 , Control Points = 6')
+plt.plot(x,y_hat_1)
+plt.plot(x,y_hat_2)
+plt.plot(x,y_1)
+plt.plot(x,y_2)
+plt.legend(['Approximation of f1','Approximation of f2'])
+plt.title('Systems of Differential Equations, Test points = 20 , Control Points = 11')
 plt.show()
