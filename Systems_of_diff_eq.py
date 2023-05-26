@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def bezier_curve(my_list, t):
     if (type(my_list)!= list ):
-        n = (my_list.size-1)//2
+        n = (my_list.size)//2-1
     else:
         n = len(my_list)-1
     result = np.zeros_like(a = my_list[0], dtype=float)
@@ -26,12 +26,13 @@ def bezier_curve_normie(control_points, t):
 
 def diff(my_list):
     temp = []
-    for i in range( my_list.size//2 - 1  if type(my_list) != list else len(my_list)-1):
-        temp.append((my_list[i+1]-my_list[i]))
+    n = my_list.size//2 - 1  if type(my_list) != list else len(my_list)-1
+    for i in range(n):
+        temp.append(n*(my_list[i+1]-my_list[i]))
     return temp
 
 
-coefficients = np.array([[0,0],[0,0]])
+coefficients = np.array([[1,1],[1,1]])
 test_points = np.random.rand(20)
 
 m = gp.Model('dumb')
@@ -42,12 +43,15 @@ control_points = m.addMVar(shape = (n+1,2), lb = -gp.GRB.INFINITY, vtype = GRB.C
 for t in test_points:  
     function_at_a_test_point = 0
     my_list = control_points
+
     function_at_a_test_point = bezier_curve(diff(my_list),t) - coefficients @ bezier_curve(my_list, t)
+
     objective_function += function_at_a_test_point @ function_at_a_test_point
 
 m.setObjective(objective_function, GRB.MINIMIZE)
 
-m.addConstr(bezier_curve(control_points,0) == np.array([1,1]))
+m.addConstr( bezier_curve(control_points,0)[0] == 1 )
+m.addConstr( bezier_curve(control_points,0)[1] == 1 )
 
 
 m.setParam('OutputFlag', False)
@@ -72,6 +76,7 @@ final_list_2 = final_list[1::2]
 print(bezier_curve_normie(final_list_1,0.2))
 
 # y = 0.5*(x**3)*(2*(np.cos(2*np.log(x))) - 3* np.sin(2*np.log(x)))
+
 y_hat_1 = []
 y_hat_2 = []
 
@@ -82,12 +87,24 @@ for g in x:
 y_hat_1 = np.asarray(y_hat_1)
 y_hat_2 = np.asarray(y_hat_2)
 
+# for i in range(10000-1):
+#     print(y_hat_1[i], i)
+
 print(y_hat_1)
 print(y_hat_2)
 
+# count = 0
+# for i in y_hat_1:
+#     if i == 1.0:
+# #         count+=1
+# print(count)
+# if np.array_equal(y_hat_1, np.ones(10000, dtype = float)):
+#     print('Hi')
+
 plt.plot(y_hat_1)
 plt.plot(y_hat_2)
+# plt.plot(np.ones(10000))
 # plt.plot(x,y)
-plt.legend(['Approximation of f1','Approximation of f2'])
+# plt.legend(['Approximation of f1','Approximation of f2'])
 # plt.title('Complicated Homogenous ODE, Test points = 20 , Control Points = 6')
 plt.show()
